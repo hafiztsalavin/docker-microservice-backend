@@ -1,0 +1,68 @@
+version: '3.7'
+
+services:
+  login-postgres:
+    image: postgres:13-alpine
+    container_name: login-postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: loginservice
+      POSTGRES_USER: loginservice
+      POSTGRES_PASSWORD: loginservice
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U loginservice"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+  
+  medium-postgres:
+    image: postgres:13-alpine
+    container_name: medium-postgres
+    ports:
+      - 5400:5432
+    environment:
+      POSTGRES_DB: postservice
+      POSTGRES_USER: postservice
+      POSTGRES_PASSWORD: postservice
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postservice"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  login-service:
+    build: login-go
+    container_name: login-service
+    environment: 
+      DATABASE_HOST: login-postgres
+      DATABASE_NAME: loginservice
+      DATABASE_USER: loginservice
+      DATABASE_PASSWORD: loginservice
+    ports:        
+      - 8888:8888
+    depends_on:
+      login-postgres:
+        condition: service_healthy
+    networks:
+      - backend
+
+  cache:
+    image: redis
+    container_name: cache_post
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6380:6379
+    networks:
+      - backend
+networks:
+  backend:
+    name: backend
+  

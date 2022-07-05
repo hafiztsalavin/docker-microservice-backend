@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/hafiztsalavin/go/src/microservice-backend'
+make: Leaving directory '/home/hafiztsalavin/go/src/microservice-backend'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+
